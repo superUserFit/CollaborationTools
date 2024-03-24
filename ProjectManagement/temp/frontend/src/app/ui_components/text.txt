@@ -1,0 +1,24 @@
+                                                        <Popover open={isOpen} onOpenChange={setIsOpen}>
+                                                            <PopoverTrigger asChild>
+                                                                <Button variant='outline' role='combobox' aria-expanded={isOpen} className="w-[200px] justify-between">
+                                                                    {roles ? roles.find((role) => role.value)?.label : "Select role..."}
+                                                                    <CaretSortIcon className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                                                                </Button>
+                                                            </PopoverTrigger>
+                                                        <PopoverContent className="w-[200px] p-0">
+                                                            <Command>
+                                                                <CommandGroup>
+                                                                    {roles.map((role) => (
+                                                                        <CommandItem
+                                                                            key={role.value}
+                                                                            value={role.label}
+                                                                            onSelect={(currentValue) => {
+                                                                                setRoleValue(currentValue)
+                                                                                setIsOpen(false)
+                                                                            }}
+                                                                            ></CommandItem>
+                                                                            ))}
+                                                                </CommandGroup>
+                                                            </Command>
+                                                        </PopoverContent>
+                                                    </Popover>
