@@ -2,6 +2,7 @@
 
 import React from "react";
 import { BiTachometer } from "react-icons/bi";
+import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { IoChatbubbleEllipses, IoSettingsOutline } from "react-icons/io5";
 import { useRouter } from "next/navigation";
@@ -17,14 +18,14 @@ const MainSideBar = () => {
     const user = useRecoilValue(userAtom);
     const minimized = useRecoilValue(sidebarAtom);
 
-    useEffect(() => {
-        if(!user) {
-            router.push('/auth/login');
-        }
-    }, []);
+    // useEffect(() => {
+    //     if(!user) {
+    //         router.push('/auth/login');
+    //     }
+    // }, []);
 
     return (
-        <nav className="flex justify-between flex-col px-1 bg-red-500 dark:bg-red-700 h-[100vh]">
+        <Card className="flex justify-between flex-col px-1 outline-8 bg-gray-300 dark:bg-background m-2 rounded-md">
             <ul className="mt-4 list-none text-decoration-none">
                 <li>
                     <Link href="/">
@@ -50,7 +51,7 @@ const MainSideBar = () => {
                     </Link>
                 </li>
             </ul>
-        </nav>
+        </Card>
     );
 }
 

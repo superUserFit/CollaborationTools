@@ -24,13 +24,13 @@ import { Button } from '@/components/ui/button';
 
 const UIToolingPage = () => {
     return (
-        <main className="flex overflow-x-hidden">
+        <main className="flex overflow-x-hidden h-[100vh]">
             <header className="flex">
                 <MainSideBar/>
                 <SecondSideBar/>
             </header>
             <section className="w-full flex-col">
-            <nav className="flex justify-between items-center bg-gray-300 dark:bg-gray-800 pb-2 pl-2">
+            <nav className="flex justify-between items-center bg-gray-300 dark:bg-background pb-2 pl-4 m-2 rounded-md">
                 <Breadcrumb>
                     <BreadcrumbList className='flex items-center mt-2'>
                         <BreadcrumbItem>

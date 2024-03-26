@@ -98,13 +98,13 @@ const SettingsPage = () => {
     }
 
     return (
-        <main className="flex overflow-x-hidden">
+        <main className="flex overflow-x-hidden h-[100vh]">
             <header className="flex">
                 <MainSideBar/>
                 <SecondSideBar/>
             </header>
             <section className="w-full flex-col">
-                <nav className="flex justify-between items-center bg-gray-300 dark:bg-gray-800 pb-2 pl-2">
+                <nav className="flex justify-between items-center bg-gray-300 dark:bg-background pb-2 pl-4 m-2 rounded-md">
                     <Breadcrumb>
                         <BreadcrumbList className='flex items-center mt-2'>
                             <BreadcrumbItem>
@@ -121,13 +121,16 @@ const SettingsPage = () => {
                 </nav>
                 <div className='flex m-4 mt-4 gap-4'>
                     <div>
-                        <Card>
+                        <Card className='mb-2'>
                             <CardDescription className='flex justify-center items-center p-2'>
                                 <Avatar className='flex justify-center items-center w-40 h-40'>
                                     <AvatarFallback className='text-2xl'>FW</AvatarFallback>
                                 </Avatar>
                             </CardDescription>
                         </Card>
+                        <Button className='w-full font-semibold text-gray-200 bg-red-500 dark:bg-red-600'>
+                            Delete
+                        </Button>
                     </div>
                     <Card className='w-full'>
                         <CardHeader className='flex justify-between flex-row'>
