@@ -13,6 +13,7 @@ import {
     DialogTitle,
     DialogTrigger
 } from '@/components/ui/dialog';
+import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { SlashIcon } from "@radix-ui/react-icons";
 import MainSideBar from "../ui_components/MainSideBar";
@@ -30,7 +31,7 @@ const UIToolingPage = () => {
                 <SecondSideBar/>
             </header>
             <section className="w-full flex-col">
-            <nav className="flex justify-between items-center bg-gray-300 dark:bg-background pb-2 pl-4 m-2 rounded-md">
+            <Card className="flex justify-between items-center pb-2 pl-4 m-2 rounded-md">
                 <Breadcrumb>
                     <BreadcrumbList className='flex items-center mt-2'>
                         <BreadcrumbItem>
@@ -44,7 +45,7 @@ const UIToolingPage = () => {
                         </BreadcrumbItem>
                     </BreadcrumbList>
                 </Breadcrumb>
-            </nav>
+            </Card>
             <section className='flex flex-col m-4'>
                 <div className='bg-gray-300 dark:bg-gray-800 bg-opacity-25 h-20 rounded-xl flex justify-center items-center backdrop-blur-sm'>Start designing today</div>
                 <div className='flex my-4 items-center justify-between'>

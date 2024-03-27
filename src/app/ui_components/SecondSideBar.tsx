@@ -17,7 +17,7 @@ const SecondSideBar = () => {
     };
 
     return (
-        <Card className={`flex justify-between transition-all duration-500 flex-col rounded-md m-2 px-2 bg-gray-300 dark:bg-background ${minimized ? 'w-20' : 'w-[20vw]'}`}>
+        <Card className={`flex justify-between transition-all duration-500 flex-col rounded-md m-2 px-2 ${minimized ? 'w-20' : 'w-[20vw]'}`}>
             <ul className="flex flex-col gap-1 mt-2 list-none text-decoration-none">
                 <div className="mb-2 flex justify-between">
                     {!minimized && <strong className="flex justify-center items-end">General Tools</strong>}

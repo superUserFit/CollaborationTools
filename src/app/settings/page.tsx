@@ -31,6 +31,9 @@ import Cookies from 'js-cookies';
 import { useSetRecoilState } from 'recoil';
 import userAtom from '../atoms/userAtom';
 import { useRouter } from 'next/navigation';
+import { useMediaQuery } from 'react-responsive';
+import SideDrawer from '../ui_components/mobile_components/SideDrawer';
+import Link from 'next/link';
 
 
 const SettingsPage = () => {
@@ -46,6 +49,7 @@ const SettingsPage = () => {
     const showToast = useShowToast();
     const setUser = useSetRecoilState(userAtom);
     const router = useRouter();
+    const isMobile = useMediaQuery({ query: '(max-width: 767px)' });
 
     const [roles] = useState([
         {
@@ -100,11 +104,30 @@ const SettingsPage = () => {
     return (
         <main className="flex overflow-x-hidden h-[100vh]">
             <header className="flex">
+                {isMobile ? 
+                <SideDrawer>
+                    <section className='w-full flex flex-col h-full p-2 gap-2 bg-gray-200 dark:bg-gray-800'>
+                        <Link href="/">
+                            <Button variant="outline" className="rounded-md w-full flex justify-center mt-4 my-2">Home</Button>
+                        </Link>
+                        <h1 className='text-center font-semibold mt-4 text-black dark:text-white'>General Tools</h1>
+                        <Link href="/ui_tools">
+                            <Button variant="outline" className="rounded-md w-full flex justify-center mt-2">UI Prototyping</Button>
+                        </Link>
+                        <Link href="/settings">
+                            <Button variant="outline" className="rounded-md w-full flex justify-center my-2">Settings</Button>
+                        </Link>
+                    </section>
+                </SideDrawer>: 
+                <>
                 <MainSideBar/>
                 <SecondSideBar/>
+                </>}
             </header>
             <section className="w-full flex-col">
-                <nav className="flex justify-between items-center bg-gray-300 dark:bg-background pb-2 pl-4 m-2 rounded-md">
+                {isMobile ? <div className='bg-gray-900 w-full h-16 absolute z-40'></div> : 
+                <>
+                <Card className="flex justify-between items-center pb-2 pl-4 m-2 rounded-md">
                     <Breadcrumb>
                         <BreadcrumbList className='flex items-center mt-2'>
                             <BreadcrumbItem>
@@ -118,10 +141,11 @@ const SettingsPage = () => {
                             </BreadcrumbItem>
                         </BreadcrumbList>
                     </Breadcrumb>
-                </nav>
-                <div className='flex m-4 mt-4 gap-4'>
+                </Card>
+                </>}
+                <div className={`${isMobile ? 'flex flex-col mt-20': 'flex flex-row'} flex m-4 mt-4 gap-4`}>
                     <div>
-                        <Card className='mb-2'>
+                        <Card className={`mb-2 ${isMobile ? 'w-full' : ''}`}>
                             <CardDescription className='flex justify-center items-center p-2'>
                                 <Avatar className='flex justify-center items-center w-40 h-40'>
                                     <AvatarFallback className='text-2xl'>FW</AvatarFallback>
@@ -139,7 +163,7 @@ const SettingsPage = () => {
                         </CardHeader>
                         <CardDescription className='m-4'>
                             <form onSubmit={handleUpdateProfile}>
-                                <section className='flex gap-2 my-4'>
+                                <section className={`${isMobile ? 'flex flex-col gap-8': 'flex flex-row'} flex gap-2 my-4`}>
                                     <div className='flex flex-col w-full'>
                                         <Label className='font-semibold mb-1 ml-2'>First name</Label>
                                         <Input placeholder='Enter first name' autoComplete='no' value={profile.firstName} onChange={(e) => setProfile((profile) => ({...profile, firstName: e.target.value}))}/>
@@ -154,7 +178,7 @@ const SettingsPage = () => {
                                     </div>
                                 </section>
 
-                                <section className='flex gap-2 my-4'>
+                                <section className={`${isMobile ? 'flex flex-col gap-8': 'flex flex-row'} flex gap-2 my-4`}>
                                     <div className='flex flex-col w-full'>
                                         <Label className='font-semibold mb-1 ml-2'>Email</Label>
                                         <Input placeholder='Enter email' autoComplete='no' value={profile.email} onChange={(e) => setProfile((profile) => ({...profile, email: e.target.value}))}/>
@@ -178,7 +202,7 @@ const SettingsPage = () => {
                                     </div>
                                 </section>
                             <div className='flex justify-end'>
-                                <Button className='flex my-3 font-semibold' type='submit'>
+                                <Button className={`${isMobile ? 'w-full' : ''} flex my-3 font-semibold`} type='submit'>
                                 {isLoading ? (<><ReloadIcon className="mr-2 h-4 w-4 animate-spin" /> Wait</> ) : ("Save Changes")}
                                 </Button>
                             </div>
@@ -187,7 +211,7 @@ const SettingsPage = () => {
                     </Card>
                 </div>
                 <div className='flex justify-end m-4'>
-                    <Button type="button" className='font-semibold px-8 bg-red-500 dark:bg-red-600 dark:text-gray-200 hover:bg-red-600 dark:hover:bg-red-700' onClick={logout}>
+                    <Button type="button" className={`${isMobile ? 'w-[50%]' : ''} font-semibold px-8 bg-red-500 dark:bg-red-600 dark:text-gray-200 hover:bg-red-600 dark:hover:bg-red-700`} onClick={logout}>
                         Logout
                     </Button>
                 </div>

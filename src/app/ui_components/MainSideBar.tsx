@@ -25,7 +25,7 @@ const MainSideBar = () => {
     // }, []);
 
     return (
-        <Card className="flex justify-between flex-col px-1 outline-8 bg-gray-300 dark:bg-background m-2 rounded-md">
+        <Card className="flex justify-between flex-col px-1 outline-8 m-2 rounded-md">
             <ul className="mt-4 list-none text-decoration-none">
                 <li>
                     <Link href="/">

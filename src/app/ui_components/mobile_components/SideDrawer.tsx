@@ -25,13 +25,15 @@ const SideDrawer = ({ children }: SideDrawerProps) => {
     }, []);
 
     return (
-        <div>
-            <Button
-                onClick={() => setIsOpen(!isOpen)}
-                className="lg:hidden absolute top-0 left-0 m-4 z-50"
-            >
-                <ImMenu size={24} />
-            </Button>
+        <section>
+            <div>
+                <Button
+                    onClick={() => setIsOpen(!isOpen)}
+                    className="lg:hidden absolute top-0 left-0 m-4 z-50 bg-gray-900 text-white"
+                >
+                    <ImMenu size={24} />
+                </Button>
+            </div>
             {isOpen && (
                 <div
                     className="fixed top-0 left-0 w-full h-full bg-black bg-opacity-50 z-40"
@@ -46,7 +48,7 @@ const SideDrawer = ({ children }: SideDrawerProps) => {
             >
                 {children}
             </aside>
-        </div>
+        </section>
     );
 };
 
