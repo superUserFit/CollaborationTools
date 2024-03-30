@@ -12,12 +12,12 @@ import { Button } from "@/components/ui/button";
 import { ReloadIcon } from "@radix-ui/react-icons";
 import { backend } from "@/app/api/api";
 import { useRouter } from "next/navigation";
-import { useRecoilValue, useSetRecoilState } from "recoil";
+import { useSetRecoilState } from "recoil";
 import useShowToast from "@/app/hooks/useShowToast";
 import Link from "next/link";
 import axios from "axios";
 import Cookies from "js-cookies";
-import userAtom from "@/app/atoms/userAtom";
+import tokenAtom from "@/app/atoms/tokenAtom";
 
 
 const Login = () => {
@@ -29,7 +29,7 @@ const Login = () => {
     const router = useRouter();
     const showToast = useShowToast();
     const [isLoading, setIsLoading] = useState(false);
-    const setUser = useSetRecoilState(userAtom);
+    const setUser = useSetRecoilState(tokenAtom);
 
 
     // Reset loading state when the component rerender
@@ -53,7 +53,7 @@ const Login = () => {
 
             if(data.status === 200) {
                 showToast('Success', data.message, 'success');
-                Cookies.setItem('Infollective', JSON.stringify(response.data.token));
+                Cookies.setItem('Infollective', JSON.stringify(data.token));
                 setUser(data.token);
                 router.push('/');
             } else {

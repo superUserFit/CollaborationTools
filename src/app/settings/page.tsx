@@ -1,18 +1,21 @@
 "use client";
 
 import {
-    Breadcrumb,
-    BreadcrumbItem,
-    BreadcrumbLink,
-    BreadcrumbList
+    Breadcrumb, BreadcrumbItem,
+    BreadcrumbLink, BreadcrumbList
 } from '@/components/ui/breadcrumb';
 import {
-    Select,
-    SelectContent,
-    SelectItem,
-    SelectTrigger,
+    Select, SelectContent,
+    SelectItem, SelectTrigger,
     SelectValue
 } from '@/components/ui/select';
+import {
+    AlertDialog, AlertDialogAction,
+    AlertDialogCancel, AlertDialogContent,
+    AlertDialogDescription,
+    AlertDialogFooter, AlertDialogHeader,
+    AlertDialogTitle, AlertDialogTrigger
+} from '@/components/ui/alert-dialog';
 import { Input } from '@/components/ui/input';
 import { SlashIcon, ReloadIcon } from "@radix-ui/react-icons";
 import { Badge } from '@/components/ui/badge';
@@ -26,14 +29,17 @@ import MainSideBar from "../ui_components/MainSideBar";
 import SecondSideBar from "../ui_components/SecondSideBar";
 import { ToggleButton } from '@/components/ToggleButton';
 import { backend } from '../api/api';
+import { getUser } from '../api/UniversalFunctions';
 import useShowToast from '../hooks/useShowToast';
 import Cookies from 'js-cookies';
-import { useSetRecoilState } from 'recoil';
-import userAtom from '../atoms/userAtom';
+import { useRecoilState, useRecoilValue, useSetRecoilState } from 'recoil';
 import { useRouter } from 'next/navigation';
 import { useMediaQuery } from 'react-responsive';
 import SideDrawer from '../ui_components/mobile_components/SideDrawer';
 import Link from 'next/link';
+import tokenAtom from '../atoms/tokenAtom';
+import sidebarAtom from '../atoms/sidebarAtom';
+import userAtom from '../atoms/userAtom';
 
 
 const SettingsPage = () => {
@@ -42,15 +48,20 @@ const SettingsPage = () => {
         lastName: '',
         username: '',
         role: '',
-        email: '',
-        password: ''
     });
     const [isLoading, setIsLoading] = useState(false);
     const showToast = useShowToast();
-    const setUser = useSetRecoilState(userAtom);
+    const [user, setUser] = useRecoilState(userAtom);
+    const setToken = useSetRecoilState(tokenAtom);
+
     const router = useRouter();
     const isMobile = useMediaQuery({ query: '(max-width: 767px)' });
+    const minimized = useRecoilValue(sidebarAtom);
+    const token = Cookies.getItem('Infollective');
+    const [deleteAction, setDeleteAction] = useState(false);
 
+    const [deleteData, setDeleteData] = useState('');
+    const [isDisabled, setIsDisabled] = useState(true);
     const [roles] = useState([
         {
             key: "Project manager",
@@ -66,6 +77,31 @@ const SettingsPage = () => {
         }
     ]);
 
+    //  Use Effects
+    useEffect(() => {
+        const fetchUser = async () => {
+            try {
+                const user = await getUser(token);
+                setUser(user);
+            } catch (error) {
+                showToast('Error', 'Error while fetching user', 'error');
+            }
+        };
+
+        fetchUser();
+
+    }, [token]);
+
+
+    useEffect(() => {
+        if(deleteData === user.email) {
+            setIsDisabled(false);
+        } else {
+            setIsDisabled(true);
+        }
+
+    }, [deleteData]);
+
     const handleRoleChange = (select:string) => {
         setProfile({
             ...profile,
@@ -73,38 +109,67 @@ const SettingsPage = () => {
         });
     };
 
-    const logout = () => {
+    const handleLogout = () => {
         Cookies.removeItem('Infollective');
-        setUser(null);
+        setToken(null);
         showToast('Success', 'Successfully logout', 'success');
         router.push('/auth/login');
     }
 
-    const handleUpdateProfile = async () => {
+    const handleUpdateProfile = async (e:any) => {
+        e.preventDefault();
         setIsLoading(true);
 
         try {
             const response = await axios.patch(`${backend}/api/user/update-profile`, profile, {
-                headers: { "Content-Type": "application/json" }
+                headers: {
+                    "Content-Type": "application/json",
+                    Authorization: `Bearer ${token}`
+                }
             });
 
+            const data = response.data;
+
             if(response.status === 200) {
-                showToast('Success', 'Profile updated successfully', 'success');
+                showToast('Success', data.message, 'success');
             } else {
-                showToast('Failed', 'Profile cannot be updated', 'error');
+                showToast('Failed', data.message, 'error');
             }
 
         }catch(error) {
-            showToast('Error', error, 'error');
+            showToast('Error', 'Error while updating profile', 'error');
         } finally {
             setIsLoading(false);
         }
     }
 
+    const handleDeleteAccount = async (e:any) => {
+        e.preventDefault();
+
+        const response = await axios.delete(`${backend}/api/user/delete-user`, {
+            headers: {
+                "Content-Type": "application/json",
+                Authorization: `Bearer ${token}`
+            },
+        });
+
+        const data = response.data;
+
+        if(data.status !== 200) {
+            showToast('Error', data.message, 'error');
+        }
+
+        showToast('Success', data.message, 'success');
+        setToken(null);
+        Cookies.removeItem('Infollective');
+        setIsDisabled(false);
+        router.push('/auth/login');
+    }
+
     return (
         <main className="flex overflow-x-hidden h-[100vh]">
             <header className="flex">
-                {isMobile ? 
+                {isMobile ?
                 <SideDrawer>
                     <section className='w-full flex flex-col h-full p-2 gap-2 bg-gray-200 dark:bg-gray-800'>
                         <Link href="/">
@@ -118,14 +183,14 @@ const SettingsPage = () => {
                             <Button variant="outline" className="rounded-md w-full flex justify-center my-2">Settings</Button>
                         </Link>
                     </section>
-                </SideDrawer>: 
+                </SideDrawer>:
                 <>
                 <MainSideBar/>
-                <SecondSideBar/>
+                <SecondSideBar minimized={minimized} />
                 </>}
             </header>
             <section className="w-full flex-col">
-                {isMobile ? <div className='bg-gray-900 w-full h-16 absolute z-40'></div> : 
+                {isMobile ? <div className='bg-gray-900 w-full h-16 absolute z-40'></div> :
                 <>
                 <Card className="flex justify-between items-center pb-2 pl-4 m-2 rounded-md">
                     <Breadcrumb>
@@ -143,18 +208,38 @@ const SettingsPage = () => {
                     </Breadcrumb>
                 </Card>
                 </>}
-                <div className={`${isMobile ? 'flex flex-col mt-20': 'flex flex-row'} flex m-4 mt-4 gap-4`}>
+                <div className={`${isMobile ? 'flex flex-col mt-24': 'flex flex-row'} flex m-4 mt-4 gap-4`}>
                     <div>
-                        <Card className={`mb-2 ${isMobile ? 'w-full' : ''}`}>
+                        <Card className={`${isMobile ? 'w-full mt-16' : ''} mb-2`}>
                             <CardDescription className='flex justify-center items-center p-2'>
                                 <Avatar className='flex justify-center items-center w-40 h-40'>
                                     <AvatarFallback className='text-2xl'>FW</AvatarFallback>
                                 </Avatar>
                             </CardDescription>
                         </Card>
-                        <Button className='w-full font-semibold text-gray-200 bg-red-500 dark:bg-red-600'>
-                            Delete
-                        </Button>
+                        <AlertDialog>
+                            <AlertDialogTrigger className='w-full'>
+                                <Button className='w-full text-gray-200 bg-red-500 dark:bg-red-600'>
+                                    Delete Account
+                                </Button>
+                            </AlertDialogTrigger>
+                            <AlertDialogContent className={`${isMobile? 'text-center': ''} w-[80%] rounded-md`}>
+                                <AlertDialogHeader>Are you should that you want to delete this account?</AlertDialogHeader>
+                                <AlertDialogDescription className='flex justify-center flex-col items-center'>
+                                    <p>This action cannot be undone. This will permanently delete your account and remove your data from our servers.</p>
+                                    <div className='flex flex-col mt-8 gap-2 w-[60%]'>
+                                        {!deleteAction ? <Button className='w-full bg-red-500 dark:bg-red-600 text-white' onClick={() => setDeleteAction(true)}>I understand this action</Button> : ''}
+                                        {!deleteAction ? '':
+                                        <form onSubmit={handleDeleteAccount}>
+                                            <p>Please enter the email that is used by this account</p>
+                                            <Input className='w-full' autoComplete='no' value={deleteData} onChange={(e) => setDeleteData(e.target.value)} />
+                                            <Button className='w-full mt-2 bg-red-500 text-white hover:bg-red-700' disabled={isDisabled}>Delete account</Button>
+                                        </form>}
+                                        <AlertDialogCancel className='w-full bg-green-500 dark:bg-green-600 text-white' onClick={() => setDeleteAction(false)}>Cancel</AlertDialogCancel>
+                                    </div>
+                                </AlertDialogDescription>
+                            </AlertDialogContent>
+                        </AlertDialog>
                     </div>
                     <Card className='w-full'>
                         <CardHeader className='flex justify-between flex-row'>
@@ -166,28 +251,39 @@ const SettingsPage = () => {
                                 <section className={`${isMobile ? 'flex flex-col gap-8': 'flex flex-row'} flex gap-2 my-4`}>
                                     <div className='flex flex-col w-full'>
                                         <Label className='font-semibold mb-1 ml-2'>First name</Label>
-                                        <Input placeholder='Enter first name' autoComplete='no' value={profile.firstName} onChange={(e) => setProfile((profile) => ({...profile, firstName: e.target.value}))}/>
+                                        <Input
+                                            placeholder={user.firstName ? user.firstName : 'Enter first name'}
+                                            autoComplete='no'
+                                            value={profile.firstName}
+                                            onChange={(e) => setProfile((profile) => ({...profile, firstName: e.target.value}))}
+                                        />
                                     </div>
                                     <div className='flex flex-col w-full'>
                                         <Label className='font-semibold mb-1 ml-2'>Last name</Label>
-                                        <Input placeholder='Enter last name' autoComplete='no' value={profile.lastName} onChange={(e) => setProfile((profile) => ({...profile, lastName: e.target.value}))}/>
-                                    </div>
-                                    <div className='flex flex-col w-full'>
-                                        <Label className='font-semibold mb-1 ml-2'>Username</Label>
-                                        <Input placeholder='Enter username' autoComplete='no' value={profile.username} onChange={(e) => setProfile((profile) => ({...profile, username: e.target.value}))}/>
+                                        <Input
+                                            placeholder={user.lastName ? user.lastName : 'Enter last name' }
+                                            autoComplete='no'
+                                            value={profile.lastName}
+                                            onChange={(e) => setProfile((profile) => ({...profile, lastName: e.target.value}))}
+                                        />
                                     </div>
                                 </section>
 
                                 <section className={`${isMobile ? 'flex flex-col gap-8': 'flex flex-row'} flex gap-2 my-4`}>
                                     <div className='flex flex-col w-full'>
-                                        <Label className='font-semibold mb-1 ml-2'>Email</Label>
-                                        <Input placeholder='Enter email' autoComplete='no' value={profile.email} onChange={(e) => setProfile((profile) => ({...profile, email: e.target.value}))}/>
+                                        <Label className='font-semibold mb-1 ml-2'>Username</Label>
+                                        <Input
+                                            placeholder={user.username ? user.username : 'Enter username'}
+                                            autoComplete='no'
+                                            value={profile.username}
+                                            onChange={(e) => setProfile((profile) => ({...profile, username: e.target.value}))}
+                                        />
                                     </div>
                                     <div className='flex flex-col w-full'>
                                         <Label className='font-semibold mb-1 ml-2'>Role</Label>
                                         <Select value={profile.role} onValueChange={handleRoleChange}>
                                             <SelectTrigger className='w-full'>
-                                                <SelectValue placeholder='Select role'>{profile.role ? profile.role : 'Select role'}</SelectValue>
+                                                <SelectValue placeholder={user.role ? user.role : 'Select role'}>{profile.role ? profile.role : 'Select role'}</SelectValue>
                                             </SelectTrigger>
                                             <SelectContent>
                                                 {roles.map((role) => (
@@ -195,10 +291,6 @@ const SettingsPage = () => {
                                                 ))}
                                             </SelectContent>
                                         </Select>
-                                    </div>
-                                    <div className='flex flex-col w-full'>
-                                        <Label className='font-semibold mb-1 ml-2'>Password</Label>
-                                        <Input placeholder='Enter password' autoComplete='no' value={profile.password} onChange={(e) => setProfile((profile) => ({...profile, password: e.target.value}))}/>
                                     </div>
                                 </section>
                             <div className='flex justify-end'>
@@ -211,9 +303,22 @@ const SettingsPage = () => {
                     </Card>
                 </div>
                 <div className='flex justify-end m-4'>
-                    <Button type="button" className={`${isMobile ? 'w-[50%]' : ''} font-semibold px-8 bg-red-500 dark:bg-red-600 dark:text-gray-200 hover:bg-red-600 dark:hover:bg-red-700`} onClick={logout}>
-                        Logout
-                    </Button>
+                    <AlertDialog>
+                        <AlertDialogTrigger asChild>
+                            <Button type="button" className={`${isMobile ? 'w-[50%]' : ''} font-semibold px-8 bg-red-500 dark:bg-red-600 dark:text-gray-200 hover:bg-red-600 dark:hover:bg-red-700`}>
+                                Logout
+                            </Button>
+                        </AlertDialogTrigger>
+                        <AlertDialogContent>
+                            <AlertDialogHeader>
+                                <AlertDialogTitle>Are you sure you want to logout?</AlertDialogTitle>
+                            </AlertDialogHeader>
+                            <AlertDialogFooter>
+                                <AlertDialogCancel className='bg-green-500 dark:bg-green-600 text-white'>Cancel</AlertDialogCancel>
+                                <AlertDialogAction className='bg-red-500 dark:bg-red-600 text-white' onClick={handleLogout}>Logout</AlertDialogAction>
+                            </AlertDialogFooter>
+                        </AlertDialogContent>
+                    </AlertDialog>
                 </div>
             </section>
         </main>

@@ -16,7 +16,7 @@ import useShowToast from "@/app/hooks/useShowToast";
 import { useRouter } from "next/navigation";
 import { ReloadIcon } from "@radix-ui/react-icons";
 import { useSetRecoilState } from "recoil";
-import userAtom from "@/app/atoms/userAtom";
+import tokenAtom from "@/app/atoms/tokenAtom";
 
 
 const Signup = () => {
@@ -31,7 +31,7 @@ const Signup = () => {
     const [isLoading, setIsLoading] = useState(false);
     const showToast = useShowToast();
     const router = useRouter();
-    const setUser = useSetRecoilState(userAtom);
+    const setUser = useSetRecoilState(tokenAtom);
 
     // Reset loading state when the component rerender
     useEffect(() => {
@@ -42,7 +42,7 @@ const Signup = () => {
     //  Functions
     const handleSignup = async () => {
         if(formData.password != confirmPassword) {
-            showToast('Error', 'Password do not match', 'destructive');
+            showToast('Error', 'Password do not match', 'error');
             return;
         }
 
@@ -84,8 +84,8 @@ const Signup = () => {
                             <Input autoComplete="no" className="bg-gray-300 dark:bg-gray-900" type="text" placeholder="Enter Username" value={formData.username} onChange={(e) => setFormData((formData) => ({...formData, username: e.target.value}))} />
                         </div>
                         <div className="flex gap-2">
-                            <Input className="bg-gray-300 dark:bg-gray-900" type="password" placeholder="Enter Password" value={formData.password} onChange={(e) => setFormData((formData) => ({...formData, password: e.target.value}))} />
-                            <Input className="bg-gray-300 dark:bg-gray-900" type="password" placeholder="Enter Confirm Password" value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)}/>
+                            <Input autoComplete="off" name="password" className="bg-gray-300 dark:bg-gray-900" type="password" placeholder="Enter Password" value={formData.password} onChange={(e) => setFormData((formData) => ({...formData, password: e.target.value}))} />
+                            <Input autoComplete="new-password" name="confirm-password" className="bg-gray-300 dark:bg-gray-900" type="password" placeholder="Enter Confirm Password" value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)}/>
                         </div>
                         <Button className="text-md font-semibold mt-2" type="submit" disabled={isLoading}>
                             {isLoading ? (<><ReloadIcon className="mr-2 h-4 w-4 animate-spin" /> Wait</> ) : ("Signup")}

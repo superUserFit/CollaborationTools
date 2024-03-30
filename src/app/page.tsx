@@ -14,15 +14,18 @@ import MainSideBar from "./ui_components/MainSideBar";
 import SecondSideBar from "./ui_components/SecondSideBar";
 import SideDrawer from './ui_components/mobile_components/SideDrawer';
 import Link from 'next/link';
+import { useRecoilValue } from 'recoil';
+import sidebarAtom from './atoms/sidebarAtom';
 
 
 export default function Home() {
   const isMobile = useMediaQuery({ query: '(max-width: 767px)' });
+  const minimized = useRecoilValue(sidebarAtom);
 
   return (
     <main className="flex overflow-x-hidden h-screen">
       <header className="flex">
-        {isMobile ? 
+        {isMobile ?
         <SideDrawer>
           <section className='w-full flex flex-col h-full p-2 gap-2 bg-gray-200 dark:bg-gray-800'>
             <Link href="/">
@@ -36,14 +39,14 @@ export default function Home() {
                 <Button variant="outline" className="rounded-md w-full flex justify-center my-2">Settings</Button>
               </Link>
           </section>
-        </SideDrawer> : 
+        </SideDrawer> :
           <>
             <MainSideBar/>
-            <SecondSideBar/>
+            <SecondSideBar minimized={minimized} />
           </>}
       </header>
       <section className="w-full flex-col flex-grow">
-        {isMobile ? <div className='bg-gray-900 w-full h-16 absolute z-40'></div> : 
+        {isMobile ? <div className='bg-gray-900 w-full h-16 absolute z-40'></div> :
         <>
         <Card className='flex justify-between items-center pb-2 pl-4 rounded-md m-2'>
           <Breadcrumb>

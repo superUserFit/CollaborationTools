@@ -7,22 +7,36 @@ import { Button } from "@/components/ui/button";
 import { IoChatbubbleEllipses, IoSettingsOutline } from "react-icons/io5";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import sidebarAtom from "../atoms/sidebarAtom";
-import { useRecoilValue } from "recoil";
+import { useRecoilValue, useSetRecoilState } from "recoil";
 import { useEffect } from "react";
+import { getUser } from "../api/UniversalFunctions";
+import tokenAtom from "../atoms/tokenAtom";
 import userAtom from "../atoms/userAtom";
+import useShowToast from "../hooks/useShowToast";
 
 
 const MainSideBar = () => {
     const router = useRouter();
-    const user = useRecoilValue(userAtom);
-    const minimized = useRecoilValue(sidebarAtom);
+    const token = JSON.stringify(useRecoilValue(tokenAtom));
+    const setUser = useSetRecoilState(userAtom);
+    const showToast = useShowToast();
 
-    // useEffect(() => {
-    //     if(!user) {
-    //         router.push('/auth/login');
-    //     }
-    // }, []);
+    useEffect(() => {
+        if(!token) {
+            router.push('/auth/login');
+        }
+
+        const fetchUser = async () => {
+            try {
+                const user = await getUser(token);
+                setUser(user);
+            } catch(error) {
+                showToast('Error', 'Error while fetching user', 'error');
+            }
+        }
+
+        fetchUser();
+    }, []);
 
     return (
         <Card className="flex justify-between flex-col px-1 outline-8 m-2 rounded-md">

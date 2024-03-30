@@ -8,9 +8,11 @@ import { FaProjectDiagram, FaTasks } from "react-icons/fa";
 import { BiPaint } from "react-icons/bi";
 import { ImMenu } from "react-icons/im";
 import { MdGroups } from "react-icons/md";
+import { useSetRecoilState } from "recoil";
+import sidebarAtom from "../atoms/sidebarAtom";
 
-const SecondSideBar = () => {
-    const [minimized, setMinimized] = useState(false);
+const SecondSideBar = ({ minimized }: { minimized:boolean }) => {
+    const setMinimized = useSetRecoilState(sidebarAtom);
 
     const toggleSidebar = () => {
         setMinimized(!minimized);
