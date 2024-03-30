@@ -17,26 +17,20 @@ import useShowToast from "../hooks/useShowToast";
 
 const MainSideBar = () => {
     const router = useRouter();
-    const token = JSON.stringify(useRecoilValue(tokenAtom));
+    const token = useRecoilValue(tokenAtom);
     const setUser = useSetRecoilState(userAtom);
-    const showToast = useShowToast();
+    //const showToast = useShowToast();
 
     useEffect(() => {
         if(!token) {
             router.push('/auth/login');
         }
 
-        const fetchUser = async () => {
-            try {
-                const user = await getUser(token);
-                setUser(user);
-            } catch(error) {
-                showToast('Error', 'Error while fetching user', 'error');
-            }
+        async () => {
+            const user = await getUser(token);
+            user ? setUser(user) : null;
         }
-
-        fetchUser();
-    }, []);
+    }, [token]);
 
     return (
         <Card className="flex justify-between flex-col px-1 outline-8 m-2 rounded-md">

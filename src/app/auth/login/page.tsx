@@ -29,7 +29,7 @@ const Login = () => {
     const router = useRouter();
     const showToast = useShowToast();
     const [isLoading, setIsLoading] = useState(false);
-    const setUser = useSetRecoilState(tokenAtom);
+    const setToken = useSetRecoilState(tokenAtom);
 
 
     // Reset loading state when the component rerender
@@ -54,7 +54,7 @@ const Login = () => {
             if(data.status === 200) {
                 showToast('Success', data.message, 'success');
                 Cookies.setItem('Infollective', JSON.stringify(data.token));
-                setUser(data.token);
+                setToken(JSON.stringify(data.token));
                 router.push('/');
             } else {
                 showToast('Error', data.message, 'error');

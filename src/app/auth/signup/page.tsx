@@ -31,7 +31,7 @@ const Signup = () => {
     const [isLoading, setIsLoading] = useState(false);
     const showToast = useShowToast();
     const router = useRouter();
-    const setUser = useSetRecoilState(tokenAtom);
+    const setToken = useSetRecoilState(tokenAtom);
 
     // Reset loading state when the component rerender
     useEffect(() => {
@@ -56,7 +56,7 @@ const Signup = () => {
 
             if(data.status === 200) {
                 showToast('Success', data.message, 'success');
-                setUser(data.token);
+                setToken(JSON.stringify(data.token));
                 router.push('/');
             } else {
                 showToast('Error', data.message, 'error');

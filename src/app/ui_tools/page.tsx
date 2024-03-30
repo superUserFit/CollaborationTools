@@ -26,11 +26,33 @@ import sidebarAtom from '../atoms/sidebarAtom';
 import { useMediaQuery } from 'react-responsive';
 import Link from 'next/link';
 import SideDrawer from '../ui_components/mobile_components/SideDrawer';
+import { useState } from 'react';
+import tokenAtom from '../atoms/tokenAtom';
+import axios from 'axios';
+import { backend } from '../api/api';
 
 
 const UIToolingPage = () => {
     const minimized = useRecoilValue(sidebarAtom);
     const isMobile = useMediaQuery({ query: '(max-width: 767px)'});
+    const token = useRecoilValue(tokenAtom);
+    const [isLoading, setIsLoading] = useState(false);
+    const [roomName, setRoomName] = useState('');
+    const [room, setRoom] = useState([]);
+
+
+    const handleCreateRoom = async (e:any) => {
+        e.preventDefault();
+
+        const response = await axios.post(`${backend}/api/room/create-room`, roomName, {
+            headers: {
+                "Content-Type" : "application/json",
+                Authorization: `Bearer ${token}`
+            }
+        });
+
+        const data = response.data;
+    }
 
     return (
         <main className="flex overflow-x-hidden h-[100vh]">
@@ -53,8 +75,7 @@ const UIToolingPage = () => {
                 <>
                 <MainSideBar/>
                 <SecondSideBar minimized={minimized} />
-                </>
-            }
+                </>}
             </header>
             <section className="w-full flex-col">
             {isMobile ? <div className='bg-gray-900 w-full h-16 absolute z-40'></div> :
@@ -75,23 +96,25 @@ const UIToolingPage = () => {
             </Card>}
             <section className={`${isMobile ? 'mt-20 ' : ''} flex flex-col m-4`}>
                 <div className='bg-gray-300 dark:bg-gray-800 bg-opacity-25 h-20 rounded-xl flex justify-center items-center backdrop-blur-sm'>Start designing today</div>
-                <div className={`${isMobile ? 'flex-col w-full gap-3' : ''} flex my-4 items-center justify-between`}>
+                <div className={`${isMobile ? 'flex-col w-full gap-3' : 'flex items-center justify-between'} my-4`}>
                     <div className={`${isMobile ? 'w-full' : ''} flex w-[35%]`}>
                         <Input placeholder='Search your design...' />
-                        <Button className='mx-1'>
+                        <Button className={`${isMobile ? 'mx-3' : 'mx-1'}`}>
                             <FaSearch size={20} />
                         </Button>
                     </div>
                     <Dialog>
+                        <div className={`${isMobile ? 'flex w-full justify-end my-4' : 'flex justify-end'}`}>
                         <DialogTrigger asChild>
-                            <Button className={`${isMobile ? 'w-full' : ''} bg-green-400 dark:bg-green-500 hover:bg-green-500 hover:dark:bg-green-700 px-4 text-white`}>Create design</Button>
+                            <Button className={`${isMobile ? '' : ''} bg-green-400 dark:bg-green-500 hover:bg-green-500 hover:dark:bg-green-700 px-4 text-white`}>Create room</Button>
                         </DialogTrigger>
-                        <DialogContent className="sm:max-w-[425px]">
+                        </div>
+                        <DialogContent className="w-[80%] rounded-md">
                             <DialogHeader>
-                                <DialogTitle>Create your design</DialogTitle>
+                                <DialogTitle>Create your room</DialogTitle>
                             </DialogHeader>
-                            <form>
-                                <Input placeholder='Design name' className='mt-3' />
+                            <form onSubmit={handleCreateRoom}>
+                                <Input placeholder='Room name' className='mt-3' value={roomName} onChange={(e) => setRoomName(e.target.value)} />
                                 <div className='flex justify-end'>
                                     <Button className='my-3'>Create</Button>
                                 </div>

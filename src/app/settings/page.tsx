@@ -52,12 +52,12 @@ const SettingsPage = () => {
     const [isLoading, setIsLoading] = useState(false);
     const showToast = useShowToast();
     const [user, setUser] = useRecoilState(userAtom);
-    const setToken = useSetRecoilState(tokenAtom);
+    const [token, setToken] = useRecoilState(tokenAtom);
+
 
     const router = useRouter();
     const isMobile = useMediaQuery({ query: '(max-width: 767px)' });
     const minimized = useRecoilValue(sidebarAtom);
-    const token = Cookies.getItem('Infollective');
     const [deleteAction, setDeleteAction] = useState(false);
 
     const [deleteData, setDeleteData] = useState('');
@@ -79,17 +79,10 @@ const SettingsPage = () => {
 
     //  Use Effects
     useEffect(() => {
-        const fetchUser = async () => {
-            try {
-                const user = await getUser(token);
-                setUser(user);
-            } catch (error) {
-                showToast('Error', 'Error while fetching user', 'error');
-            }
+        async () => {
+            const user = await getUser(token);
+            user ? setUser(user) : null;
         };
-
-        fetchUser();
-
     }, [token]);
 
 
@@ -160,7 +153,7 @@ const SettingsPage = () => {
         }
 
         showToast('Success', data.message, 'success');
-        setToken(null);
+        setToken('');
         Cookies.removeItem('Infollective');
         setIsDisabled(false);
         router.push('/auth/login');
@@ -230,8 +223,9 @@ const SettingsPage = () => {
                                     <div className='flex flex-col mt-8 gap-2 w-[60%]'>
                                         {!deleteAction ? <Button className='w-full bg-red-500 dark:bg-red-600 text-white' onClick={() => setDeleteAction(true)}>I understand this action</Button> : ''}
                                         {!deleteAction ? '':
-                                        <form onSubmit={handleDeleteAccount}>
-                                            <p>Please enter the email that is used by this account</p>
+                                        <form onSubmit={handleDeleteAccount} className='text-center'>
+                                            <p className='text-center'>Please enter the email that is used by this account:</p>
+                                            <strong className='text-center'>{user.email}</strong>
                                             <Input className='w-full' autoComplete='no' value={deleteData} onChange={(e) => setDeleteData(e.target.value)} />
                                             <Button className='w-full mt-2 bg-red-500 text-white hover:bg-red-700' disabled={isDisabled}>Delete account</Button>
                                         </form>}
@@ -309,7 +303,7 @@ const SettingsPage = () => {
                                 Logout
                             </Button>
                         </AlertDialogTrigger>
-                        <AlertDialogContent>
+                        <AlertDialogContent className='w-[80%]'>
                             <AlertDialogHeader>
                                 <AlertDialogTitle>Are you sure you want to logout?</AlertDialogTitle>
                             </AlertDialogHeader>
