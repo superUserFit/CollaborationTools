@@ -30,7 +30,7 @@ const MainSideBar = () => {
             const user = await getUser(token);
             user ? setUser(user) : null;
         }
-    }, [token]);
+    }, [setUser]);
 
     return (
         <Card className="flex justify-between flex-col px-1 outline-8 m-2 rounded-md">

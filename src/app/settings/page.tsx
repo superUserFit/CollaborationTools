@@ -79,10 +79,12 @@ const SettingsPage = () => {
 
     //  Use Effects
     useEffect(() => {
-        async () => {
+        const fetchUser = async () => {
             const user = await getUser(token);
-            user ? setUser(user) : null;
+            user ? setUser(user) : showToast('Error', 'Error while fetching user', 'error');
         };
+
+        fetchUser();
     }, [token]);
 
 

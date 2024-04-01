@@ -30,6 +30,7 @@ import { useState } from 'react';
 import tokenAtom from '../atoms/tokenAtom';
 import axios from 'axios';
 import { backend } from '../api/api';
+import useShowToast from '../hooks/useShowToast';
 
 
 const UIToolingPage = () => {
@@ -39,19 +40,33 @@ const UIToolingPage = () => {
     const [isLoading, setIsLoading] = useState(false);
     const [roomName, setRoomName] = useState('');
     const [room, setRoom] = useState([]);
+    const showToast = useShowToast();
 
 
     const handleCreateRoom = async (e:any) => {
         e.preventDefault();
+        setIsLoading(true);
 
-        const response = await axios.post(`${backend}/api/room/create-room`, roomName, {
-            headers: {
-                "Content-Type" : "application/json",
-                Authorization: `Bearer ${token}`
+        try {
+            const response = await axios.post(`${backend}/api/room/create-room`, roomName, {
+                headers: {
+                    "Content-Type" : "application/json",
+                    Authorization: `Bearer ${token}`
+                }
+            });
+
+            const data = response.data;
+
+            if(data.status === 200) {
+                console.log(data.room);
+            } else {
+                showToast('Error', 'Failed to create a room', 'error');
             }
-        });
-
-        const data = response.data;
+        } catch(error) {
+            showToast('Error', 'Error while creating a room', 'error');
+        } finally {
+            setIsLoading(false);
+        }
     }
 
     return (
