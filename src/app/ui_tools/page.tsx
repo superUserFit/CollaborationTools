@@ -1,5 +1,14 @@
 "use client";
 
+//  Import react libraries
+import { useState } from 'react';
+import { useMediaQuery } from 'react-responsive';
+import { FaSearch } from 'react-icons/fa';
+import { useRecoilValue } from 'recoil';
+import Link from 'next/link';
+import axios from 'axios';
+
+//  Import UI Components
 import {
     Breadcrumb,
     BreadcrumbItem,
@@ -15,22 +24,19 @@ import {
 } from '@/components/ui/dialog';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
+import { Input } from '@/components/ui/input';
+import { Button } from '@/components/ui/button';
 import { SlashIcon } from "@radix-ui/react-icons";
+
+//  Import custom components
 import MainSideBar from "../ui_components/MainSideBar";
 import SecondSideBar from "../ui_components/SecondSideBar";
-import { Input } from '@/components/ui/input';
-import { FaSearch } from 'react-icons/fa';
-import { Button } from '@/components/ui/button';
-import { useRecoilValue } from 'recoil';
-import sidebarAtom from '../atoms/sidebarAtom';
-import { useMediaQuery } from 'react-responsive';
-import Link from 'next/link';
 import SideDrawer from '../ui_components/mobile_components/SideDrawer';
-import { useState } from 'react';
+import sidebarAtom from '../atoms/sidebarAtom';
 import tokenAtom from '../atoms/tokenAtom';
-import axios from 'axios';
 import { backend } from '../api/api';
 import useShowToast from '../hooks/useShowToast';
+
 
 
 const UIToolingPage = () => {
@@ -48,7 +54,7 @@ const UIToolingPage = () => {
         setIsLoading(true);
 
         try {
-            const response = await axios.post(`${backend}/api/room/create-room`, roomName, {
+            const response = await axios.post(`${backend}/api/room/create-room`, { roomName }, {
                 headers: {
                     "Content-Type" : "application/json",
                     Authorization: `Bearer ${token}`

@@ -1,14 +1,20 @@
 "use client";
 
+//  Import react libraries
 import React, { useState } from "react";
+import { useSetRecoilState } from "recoil";
+import Link from "next/link";
+
+//  Import UI Components
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import Link from "next/link";
 import { FaProjectDiagram, FaTasks } from "react-icons/fa";
 import { BiPaint } from "react-icons/bi";
+import { PiShareNetworkDuotone } from "react-icons/pi";
 import { ImMenu } from "react-icons/im";
 import { MdGroups } from "react-icons/md";
-import { useSetRecoilState } from "recoil";
+
+//  Import custom components
 import sidebarAtom from "../atoms/sidebarAtom";
 
 const SecondSideBar = ({ minimized }: { minimized:boolean }) => {
@@ -40,6 +46,14 @@ const SecondSideBar = ({ minimized }: { minimized:boolean }) => {
                         <Button variant="outline" className="rounded-md w-full flex justify-start gap-3">
                             <BiPaint size={24} />
                             {!minimized && <p>UI Prototyping</p>}
+                        </Button>
+                    </Link>
+                </li>
+                <li>
+                    <Link href="/api_documentation">
+                        <Button variant="outline" className="rounded-md w-full flex justify-start gap-3">
+                            <PiShareNetworkDuotone size={24} />
+                            {!minimized && <p>API Documentation</p>}
                         </Button>
                     </Link>
                 </li>

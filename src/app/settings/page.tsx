@@ -1,5 +1,15 @@
 "use client";
 
+//  Import react libraries
+import { useEffect, useState } from 'react';
+import Cookies from 'js-cookies';
+import { useRecoilState, useRecoilValue, useSetRecoilState } from 'recoil';
+import axios from 'axios';
+import { useRouter } from 'next/navigation';
+import { useMediaQuery } from 'react-responsive';
+import Link from 'next/link';
+
+//  Import UI Components
 import {
     Breadcrumb, BreadcrumbItem,
     BreadcrumbLink, BreadcrumbList
@@ -23,20 +33,15 @@ import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Card, CardDescription, CardHeader } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
-import { useEffect, useState } from 'react';
-import axios from 'axios';
+
+//  Import custom components
 import MainSideBar from "../ui_components/MainSideBar";
 import SecondSideBar from "../ui_components/SecondSideBar";
 import { ToggleButton } from '@/components/ToggleButton';
 import { backend } from '../api/api';
 import { getUser } from '../api/UniversalFunctions';
 import useShowToast from '../hooks/useShowToast';
-import Cookies from 'js-cookies';
-import { useRecoilState, useRecoilValue, useSetRecoilState } from 'recoil';
-import { useRouter } from 'next/navigation';
-import { useMediaQuery } from 'react-responsive';
 import SideDrawer from '../ui_components/mobile_components/SideDrawer';
-import Link from 'next/link';
 import tokenAtom from '../atoms/tokenAtom';
 import sidebarAtom from '../atoms/sidebarAtom';
 import userAtom from '../atoms/userAtom';

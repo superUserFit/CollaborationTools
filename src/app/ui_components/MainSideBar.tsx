@@ -1,14 +1,19 @@
 "use client";
 
+//  Import react libraries
 import React from "react";
+import { redirect } from "next/navigation";
+import Link from "next/link";
+import { useRecoilValue, useSetRecoilState } from "recoil";
+import { useEffect } from "react";
+
+//  Import UI Components
 import { BiTachometer } from "react-icons/bi";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { IoChatbubbleEllipses, IoSettingsOutline } from "react-icons/io5";
-import { useRouter } from "next/navigation";
-import Link from "next/link";
-import { useRecoilValue, useSetRecoilState } from "recoil";
-import { useEffect } from "react";
+
+//  Import custom components
 import { getUser } from "../api/UniversalFunctions";
 import tokenAtom from "../atoms/tokenAtom";
 import userAtom from "../atoms/userAtom";
@@ -16,14 +21,13 @@ import useShowToast from "../hooks/useShowToast";
 
 
 const MainSideBar = () => {
-    const router = useRouter();
     const token = useRecoilValue(tokenAtom);
     const setUser = useSetRecoilState(userAtom);
     //const showToast = useShowToast();
 
     useEffect(() => {
         if(!token) {
-            router.push('/auth/login');
+            redirect('/auth/login');
         }
 
         async () => {
