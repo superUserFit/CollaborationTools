@@ -1,6 +1,14 @@
 "use client";
 
+//  React libraries
 import React, { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
+import { useSetRecoilState } from "recoil";
+import Cookies from "js-cookies";
+import Link from "next/link";
+import axios from '@/app/api/api';
+
+//  UI Components
 import { Input } from "@/components/ui/input";
 import {
     Card,
@@ -10,13 +18,10 @@ import {
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { ReloadIcon } from "@radix-ui/react-icons";
-import { backend } from "@/app/api/api";
-import { useRouter } from "next/navigation";
-import { useSetRecoilState } from "recoil";
+import ErrorMessage from "@/app/ui_components/ErrorMessage";
+
+//  Custom components
 import useShowToast from "@/app/hooks/useShowToast";
-import Link from "next/link";
-import axios from "axios";
-import Cookies from "js-cookies";
 import tokenAtom from "@/app/atoms/tokenAtom";
 
 
@@ -30,6 +35,11 @@ const Login = () => {
     const showToast = useShowToast();
     const [isLoading, setIsLoading] = useState(false);
     const setToken = useSetRecoilState(tokenAtom);
+
+    const [error, setError] = useState({
+        isError: false,
+        message: ''
+    });
 
 
     // Reset loading state when the component rerender
@@ -45,22 +55,22 @@ const Login = () => {
         setIsLoading(true);
 
         try {
-            const response = await axios.post(`${backend}/api/user/login`, loginData, {
-                headers: { "Content-Type" : "application/json" }
-            });
+            const response = await axios.post('/user/login', loginData);
+
+            if(!response.data) {
+                return;
+            }
 
             const data = response.data;
+            Cookies.setItem('Infollective', JSON.stringify(data.token));
+            setToken(JSON.stringify(data.token));
 
-            if(data.status === 200) {
-                showToast('Success', data.message, 'success');
-                Cookies.setItem('Infollective', JSON.stringify(data.token));
-                setToken(JSON.stringify(data.token));
-                router.push('/');
-            } else {
-                showToast('Error', data.message, 'error');
-            }
+            setError({ isError: false, message: '' });
+            showToast('Success', data.message, 'success');
+            router.push('/');
         } catch(error) {
-            showToast('Error', 'Error while login', 'error');
+            //showToast('Error', error.response.data.message, 'error');
+            setError({ isError: true, message: error.response.data.message });
         } finally {
             setIsLoading(false);
         }
@@ -70,6 +80,7 @@ const Login = () => {
     return (
         <section className="flex justify-center items-center h-screen">
             <Card className="p-4">
+                {error.isError && <ErrorMessage message={error.message} />}
                 <CardHeader className="font-semibold text-2xl">Login</CardHeader>
                 <CardContent className="flex flex-col gap-3">
                     <form onSubmit={handleLogin} className="flex flex-col gap-3">

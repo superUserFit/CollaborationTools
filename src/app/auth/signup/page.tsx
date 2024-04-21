@@ -1,6 +1,13 @@
 "use client";
 
+//  React libraries
 import React, { useEffect, useState } from "react";
+import { useSetRecoilState } from "recoil";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+import axios from "@/app/api/api";
+
+//  UI Components
 import { Input } from "@/components/ui/input";
 import {
     Card,
@@ -8,14 +15,12 @@ import {
     CardHeader,
     CardFooter
 } from "@/components/ui/card";
-import Link from "next/link";
 import { Button } from "@/components/ui/button";
-import axios from "axios";
-import { backend } from "@/app/api/api";
-import useShowToast from "@/app/hooks/useShowToast";
-import { useRouter } from "next/navigation";
 import { ReloadIcon } from "@radix-ui/react-icons";
-import { useSetRecoilState } from "recoil";
+import ErrorMessage from "@/app/ui_components/ErrorMessage";
+
+//  Custom components
+import useShowToast from "@/app/hooks/useShowToast";
 import tokenAtom from "@/app/atoms/tokenAtom";
 
 
@@ -33,6 +38,11 @@ const Signup = () => {
     const router = useRouter();
     const setToken = useSetRecoilState(tokenAtom);
 
+    const [error, setError] = useState({
+        isError: false,
+        message: ''
+    });
+
     // Reset loading state when the component rerender
     useEffect(() => {
         setIsLoading(false);
@@ -42,27 +52,27 @@ const Signup = () => {
     //  Functions
     const handleSignup = async () => {
         if(formData.password != confirmPassword) {
-            showToast('Error', 'Password do not match', 'error');
+            setError({ isError: true, message: 'Password do not match.' });
             return;
         }
 
         try {
             setIsLoading(true);
-            const response = await axios.post(`${backend}/api/user/signup`, formData, {
-                headers: { "Content-Type" : "application/json" }
-            });
+            const response = await axios.post('/user/signup', formData);
+
+            if(!response.data) {
+                return;
+            }
 
             const data = response.data;
 
-            if(data.status === 200) {
-                showToast('Success', data.message, 'success');
-                setToken(JSON.stringify(data.token));
-                router.push('/');
-            } else {
-                showToast('Error', data.message, 'error');
-            }
+            showToast('Success', data.message, 'success');
+            setError({ isError: false, message: '' });
+
+            setToken(JSON.stringify(data.token));
+            router.push('/');
         }catch(error) {
-            showToast('Error', 'Error while signup', 'error');
+            setError({ isError: true, message: error.response.data.message });
         } finally {
             setIsLoading(false);
         }
@@ -72,6 +82,7 @@ const Signup = () => {
     return (
         <section className="flex justify-center items-center h-screen">
             <Card className="p-4">
+                {error.isError && <ErrorMessage message={error.message} />}
                 <CardHeader className="font-semibold text-2xl">Sign up</CardHeader>
                 <CardContent className="flex flex-col gap-3">
                     <form action={handleSignup} className="flex flex-col gap-3">

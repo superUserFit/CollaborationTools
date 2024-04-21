@@ -1,10 +1,10 @@
 "use client";
 
-//  Import react libraries
+//  Import React libraries
 import { useEffect, useState } from 'react';
 import Cookies from 'js-cookies';
 import { useRecoilState, useRecoilValue, useSetRecoilState } from 'recoil';
-import axios from 'axios';
+import axios from '@/app/api/api';
 import { useRouter } from 'next/navigation';
 import { useMediaQuery } from 'react-responsive';
 import Link from 'next/link';
@@ -33,12 +33,12 @@ import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Card, CardDescription, CardHeader } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
+import { ToggleButton } from '@/components/ToggleButton';
+import DeleteDialog from './DeleteDialog';
 
 //  Import custom components
 import MainSideBar from "../ui_components/MainSideBar";
 import SecondSideBar from "../ui_components/SecondSideBar";
-import { ToggleButton } from '@/components/ToggleButton';
-import { backend } from '../api/api';
 import { getUser } from '../api/UniversalFunctions';
 import useShowToast from '../hooks/useShowToast';
 import SideDrawer from '../ui_components/mobile_components/SideDrawer';
@@ -59,14 +59,10 @@ const SettingsPage = () => {
     const [user, setUser] = useRecoilState(userAtom);
     const [token, setToken] = useRecoilState(tokenAtom);
 
-
     const router = useRouter();
     const isMobile = useMediaQuery({ query: '(max-width: 767px)' });
     const minimized = useRecoilValue(sidebarAtom);
-    const [deleteAction, setDeleteAction] = useState(false);
 
-    const [deleteData, setDeleteData] = useState('');
-    const [isDisabled, setIsDisabled] = useState(true);
     const [roles] = useState([
         {
             key: "Project manager",
@@ -92,16 +88,6 @@ const SettingsPage = () => {
         fetchUser();
     }, [token]);
 
-
-    useEffect(() => {
-        if(deleteData === user.email) {
-            setIsDisabled(false);
-        } else {
-            setIsDisabled(true);
-        }
-
-    }, [deleteData]);
-
     const handleRoleChange = (select:string) => {
         setProfile({
             ...profile,
@@ -121,54 +107,28 @@ const SettingsPage = () => {
         setIsLoading(true);
 
         try {
-            const response = await axios.patch(`${backend}/api/user/update-profile`, profile, {
+            const response = await axios.patch('/user/update-profile', profile, {
                 headers: {
-                    "Content-Type": "application/json",
                     Authorization: `Bearer ${token}`
                 }
             });
 
-            const data = response.data;
-
-            if(response.status === 200) {
-                showToast('Success', data.message, 'success');
-            } else {
-                showToast('Failed', data.message, 'error');
+            if(!response.data) {
+                return;
             }
 
+            const data = response.data;
+            showToast('Success', data.message, 'success');
         }catch(error) {
-            showToast('Error', 'Error while updating profile', 'error');
+            showToast('Error', error.response.data.message, 'error');
         } finally {
             setIsLoading(false);
         }
     }
 
-    const handleDeleteAccount = async (e:any) => {
-        e.preventDefault();
-
-        const response = await axios.delete(`${backend}/api/user/delete-user`, {
-            headers: {
-                "Content-Type": "application/json",
-                Authorization: `Bearer ${token}`
-            },
-        });
-
-        const data = response.data;
-
-        if(data.status !== 200) {
-            showToast('Error', data.message, 'error');
-        }
-
-        showToast('Success', data.message, 'success');
-        setToken('');
-        Cookies.removeItem('Infollective');
-        setIsDisabled(false);
-        router.push('/auth/login');
-    }
-
     return (
         <main className="flex overflow-x-hidden h-[100vh]">
-            <header className="flex">
+            <header className="flex my-2 gap-1 ml-1">
                 {isMobile ?
                 <SideDrawer>
                     <section className='w-full flex flex-col h-full p-2 gap-2 bg-gray-200 dark:bg-gray-800'>
@@ -217,30 +177,11 @@ const SettingsPage = () => {
                                 </Avatar>
                             </CardDescription>
                         </Card>
-                        <AlertDialog>
-                            <AlertDialogTrigger className='w-full'>
-                                <Button className='w-full text-gray-200 bg-red-500 dark:bg-red-600'>
+                        <DeleteDialog user={user}>
+                            <Button className='w-full text-gray-200 bg-red-500 dark:bg-red-600'>
                                     Delete Account
-                                </Button>
-                            </AlertDialogTrigger>
-                            <AlertDialogContent className={`${isMobile? 'text-center': ''} w-[80%] rounded-md`}>
-                                <AlertDialogHeader>Are you should that you want to delete this account?</AlertDialogHeader>
-                                <AlertDialogDescription className='flex justify-center flex-col items-center'>
-                                    <p>This action cannot be undone. This will permanently delete your account and remove your data from our servers.</p>
-                                    <div className='flex flex-col mt-8 gap-2 w-[60%]'>
-                                        {!deleteAction ? <Button className='w-full bg-red-500 dark:bg-red-600 text-white' onClick={() => setDeleteAction(true)}>I understand this action</Button> : ''}
-                                        {!deleteAction ? '':
-                                        <form onSubmit={handleDeleteAccount} className='text-center'>
-                                            <p className='text-center'>Please enter the email that is used by this account:</p>
-                                            <strong className='text-center'>{user.email}</strong>
-                                            <Input className='w-full' autoComplete='no' value={deleteData} onChange={(e) => setDeleteData(e.target.value)} />
-                                            <Button className='w-full mt-2 bg-red-500 text-white hover:bg-red-700' disabled={isDisabled}>Delete account</Button>
-                                        </form>}
-                                        <AlertDialogCancel className='w-full bg-green-500 dark:bg-green-600 text-white' onClick={() => setDeleteAction(false)}>Cancel</AlertDialogCancel>
-                                    </div>
-                                </AlertDialogDescription>
-                            </AlertDialogContent>
-                        </AlertDialog>
+                            </Button>
+                        </DeleteDialog>
                     </div>
                     <Card className='w-full'>
                         <CardHeader className='flex justify-between flex-row'>

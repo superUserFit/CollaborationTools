@@ -24,7 +24,7 @@ export default function Home() {
 
   return (
     <main className="flex overflow-x-hidden h-screen">
-      <header className="flex">
+      <header className="flex my-2 gap-1 ml-1">
         {isMobile ?
         <SideDrawer>
           <section className='w-full flex flex-col h-full p-2 gap-2 bg-gray-200 dark:bg-gray-800'>
