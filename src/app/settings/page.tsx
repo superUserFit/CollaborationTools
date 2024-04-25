@@ -11,10 +11,6 @@ import Link from 'next/link';
 
 //  Import UI Components
 import {
-    Breadcrumb, BreadcrumbItem,
-    BreadcrumbLink, BreadcrumbList
-} from '@/components/ui/breadcrumb';
-import {
     Select, SelectContent,
     SelectItem, SelectTrigger,
     SelectValue
@@ -45,6 +41,7 @@ import SideDrawer from '../ui_components/mobile_components/SideDrawer';
 import tokenAtom from '../atoms/tokenAtom';
 import sidebarAtom from '../atoms/sidebarAtom';
 import userAtom from '../atoms/userAtom';
+import CustomBreadcrumb from './CustomBreadcrumb';
 
 
 const SettingsPage = () => {
@@ -152,21 +149,7 @@ const SettingsPage = () => {
             <section className="w-full flex-col">
                 {isMobile ? <div className='bg-gray-900 w-full h-16 absolute z-40'></div> :
                 <>
-                <Card className="flex justify-between items-center pb-2 pl-4 m-2 rounded-md">
-                    <Breadcrumb>
-                        <BreadcrumbList className='flex items-center mt-2'>
-                            <BreadcrumbItem>
-                                <BreadcrumbLink href='/'>
-                                    <strong>Home</strong>
-                                </BreadcrumbLink>
-                            </BreadcrumbItem>
-                            <SlashIcon/>
-                            <BreadcrumbItem>
-                                <Badge className='cursor-pointer'><h1>Settings</h1></Badge>
-                            </BreadcrumbItem>
-                        </BreadcrumbList>
-                    </Breadcrumb>
-                </Card>
+                    <CustomBreadcrumb />
                 </>}
                 <div className={`${isMobile ? 'flex flex-col mt-24': 'flex flex-row'} flex m-4 mt-4 gap-4`}>
                     <div>

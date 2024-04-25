@@ -10,12 +10,6 @@ import axios from '@/app/api/api';
 
 //  Import UI Components
 import {
-    Breadcrumb,
-    BreadcrumbItem,
-    BreadcrumbLink,
-    BreadcrumbList
-} from '@/components/ui/breadcrumb';
-import {
     Dialog,
     DialogContent,
     DialogHeader,
@@ -28,11 +22,9 @@ import {
     PopoverTrigger
 } from '@/components/ui/popover';
 import { Card, CardContent } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
-import { SlashIcon } from "@radix-ui/react-icons";
 import { BsThreeDotsVertical } from "react-icons/bs";
 
 //  Import custom components
@@ -45,6 +37,7 @@ import tokenAtom from '../atoms/tokenAtom';
 import useShowToast from '../hooks/useShowToast';
 import userAtom from '../atoms/userAtom';
 import Loading from '../ui_components/Loading';
+import CustomBreadcrumb from './CustomBreadcrumb';
 
 
 
@@ -131,21 +124,8 @@ const UIToolingPage = () => {
             </header>
             <section className="w-full flex-col">
             {isMobile ? <div className='bg-gray-900 w-full h-16 absolute z-40'></div> :
-            <Card className="flex justify-between items-center pb-2 pl-4 m-2 rounded-md">
-                <Breadcrumb>
-                    <BreadcrumbList className='flex items-center mt-2'>
-                        <BreadcrumbItem>
-                            <BreadcrumbLink href='/'>
-                                <strong>Home</strong>
-                            </BreadcrumbLink>
-                        </BreadcrumbItem>
-                        <SlashIcon/>
-                        <BreadcrumbItem>
-                            <Badge className='cursor-pointer'><h1>UI Prototyping</h1></Badge>
-                        </BreadcrumbItem>
-                    </BreadcrumbList>
-                </Breadcrumb>
-            </Card>}
+                <CustomBreadcrumb />
+            }
             <section className={`${isMobile ? 'mt-20 ' : ''} flex flex-col my-2 mx-2`}>
                 <div className='bg-gray-300 dark:bg-gray-800 bg-opacity-25 h-20 rounded-xl flex justify-center items-center backdrop-blur-sm'>Start designing today</div>
                 <div className={`${isMobile ? 'flex-col w-full gap-3' : 'flex items-center justify-between'} my-2`}>
